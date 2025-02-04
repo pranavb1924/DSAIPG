@@ -29,12 +29,21 @@ public class ThreeSumQuadraticTime {
                 quadrithmicResults = threeSumQuadrithmic.getTriples();
                 quadrithmicTime = stopwatch.lap();
             }
+
+            Triple[] cubicResults;
+            double cubicTime;
+            try (Stopwatch stopwatch = new Stopwatch()) {
+                ThreeSumCubic threeSumCubic = new ThreeSumCubic(randomArray);
+                cubicResults = threeSumCubic.getTriples();
+                cubicTime = stopwatch.lap();
+            }
             
             System.out.println("Time for quadratic approach: " + quadraticTime + " ms");
             System.out.println("Time for quadrithmic approach: " + quadrithmicTime + " ms");
+            System.out.println("Time for cubic approach: " + cubicTime + " ms");
             System.out.println("Result size for quadratic approach: " + quadraticResults.length);
             System.out.println("Result size for quadrithmic approach: " + quadrithmicResults.length);
-            
+            System.out.println("Result size for cubic approach: " + cubicResults.length);
             System.out.println();
             run++;
         }
