@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import com.phasmidsoftware.dsaipg.util.Stopwatch;
+
 
 /**
  * Implementation of ThreeSum which follows the simple optimization of
@@ -42,13 +44,14 @@ class ThreeSumQuadrithmic implements ThreeSum {
      */
     public Triple[] getTriples() {
         List<Triple> triples = new ArrayList<>();
-        for (int i = 0; i < length; i++)
+        for (int i = 0; i < length; i++) {
             for (int j = i + 1; j < length; j++) {
                 Triple triple = getTriple(i, j);
-                if (triple != null) triples.add(triple);
+                if (triple != null && !triples.contains(triple)) triples.add(triple);
             }
+        }
         Collections.sort(triples);
-        return triples.stream().distinct().toArray(Triple[]::new);
+        return triples.toArray(new Triple[0]);
     }
 
     /**
@@ -62,8 +65,26 @@ class ThreeSumQuadrithmic implements ThreeSum {
      */
     Triple getTriple(int i, int j) {
         // TO BE IMPLEMENTED  : use binary search to find the third element
-        // END SOLUTION
+        int target = -(a[i] + a[j]);
+        int index = binarySearch(a, j + 1, length - 1, target);
+        if (index > j) {
+            return new Triple(a[i], a[j], a[index]);
+        }
         return null;
+    }
+
+    private int binarySearch(int[] arr, int leftBoundary, int rightBoundary, int target) {
+        while (leftBoundary <= rightBoundary) {
+            int midPoint = leftBoundary + (rightBoundary - leftBoundary) / 2;
+            if (arr[midPoint] == target) {
+                return midPoint;
+            } else if (arr[midPoint] < target) {
+                leftBoundary = midPoint + 1;
+            } else {
+                rightBoundary = midPoint - 1;
+            }
+        }
+        return -1;
     }
 
     private final int[] a;

@@ -21,7 +21,7 @@ public class RandomWalk {
      */
     public double distance() {
         // TO BE IMPLEMENTED 
-         return 0.0;
+        return Math.sqrt((long) x * x + (long) y * y);
         // END SOLUTION
     }
 
@@ -33,7 +33,8 @@ public class RandomWalk {
      */
     private void move(int dx, int dy) {
         // TO BE IMPLEMENTED  do move
-         throw new RuntimeException("Not implemented");
+        x += dx;
+        y += dy;
         // END SOLUTION
     }
 
@@ -44,7 +45,9 @@ public class RandomWalk {
      */
     private void randomWalk(int m) {
         // TO BE IMPLEMENTED 
-throw new RuntimeException("implementation missing");
+        for (int i = 0; i < m; i++) {
+            randomMove();
+        }
     }
 
     /**
@@ -90,12 +93,14 @@ throw new RuntimeException("implementation missing");
      *             If args is empty, the method throws a RuntimeException indicating invalid syntax.
      */
     public static void main(String[] args) {
-        if (args.length == 0)
-            throw new RuntimeException("Syntax: RandomWalk steps [experiments]");
-        int m = Integer.parseInt(args[0]);
-        int n = 30;
-        if (args.length > 1) n = Integer.parseInt(args[1]);
-        double meanDistance = randomWalkMulti(m, n);
-        System.out.println(m + " steps: " + meanDistance + " over " + n + " experiments");
+        int n = 10;
+        int[] mValues = {9, 25, 50, 85, 100, 150,
+                200, 225};
+        System.out.printf("%-10s %-15s %-15s\n", "M (steps)", "N (experiments)", "Mean Distance");
+        System.out.println("------------------------------------------------");
+        for (int m : mValues) {
+            double meanDistance = randomWalkMulti(m, n);
+            System.out.printf("%-10d %-15d %-15.5f\n", m, n, meanDistance);
+        }
     }
 }
