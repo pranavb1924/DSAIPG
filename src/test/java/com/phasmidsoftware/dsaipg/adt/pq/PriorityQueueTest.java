@@ -3,13 +3,26 @@ package com.phasmidsoftware.dsaipg.adt.pq;
 import com.phasmidsoftware.dsaipg.util.PrivateMethodTester;
 import org.junit.Test;
 
+import java.lang.reflect.Field;
 import java.util.Comparator;
 import java.util.Iterator;
 
 import static org.junit.Assert.*;
 
-@SuppressWarnings("ConstantConditions")
 public class PriorityQueueTest {
+
+    private void setFields(PriorityQueue<?> pq, Object[] binHeap, int last) {
+        try {
+            Field binHeapField = PriorityQueue.class.getDeclaredField("binHeap");
+            binHeapField.setAccessible(true);
+            binHeapField.set(pq, binHeap);
+            Field lastField = PriorityQueue.class.getDeclaredField("last");
+            lastField.setAccessible(true);
+            lastField.setInt(pq, last);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Test
     public void testUnordered1() {
@@ -17,8 +30,9 @@ public class PriorityQueueTest {
         binHeap[1] = "A";
         binHeap[2] = "B";
         boolean max = false;
-        Iterable<String> pq = new PriorityQueue<>(max, binHeap, 1, 2, Comparator.comparing(String::toString), false);
-        final PrivateMethodTester tester = new PrivateMethodTester(pq);
+        PriorityQueue<String> pq = new PriorityQueue<>(2, 1, max, Comparator.comparing(String::toString), false, 2);
+        setFields(pq, binHeap, 2);
+        PrivateMethodTester tester = new PrivateMethodTester(pq);
         assertEquals(max, tester.invokePrivate("unordered", 1, 2));
     }
 
@@ -28,8 +42,9 @@ public class PriorityQueueTest {
         binHeap[1] = "A";
         binHeap[2] = "B";
         boolean max = true;
-        Iterable<String> pq = new PriorityQueue<>(max, binHeap, 1, 2, Comparator.comparing(String::toString), false);
-        final PrivateMethodTester tester = new PrivateMethodTester(pq);
+        PriorityQueue<String> pq = new PriorityQueue<>(2, 1, max, Comparator.comparing(String::toString), false, 2);
+        setFields(pq, binHeap, 2);
+        PrivateMethodTester tester = new PrivateMethodTester(pq);
         assertEquals(max, tester.invokePrivate("unordered", 1, 2));
     }
 
@@ -40,9 +55,9 @@ public class PriorityQueueTest {
         String b = "B";
         binHeap[0] = a;
         binHeap[1] = b;
-        // Create PQ which uses the 0th index.
-        Iterable<String> pq = new PriorityQueue<>(true, binHeap, 0, 2, Comparator.comparing(String::toString), true);
-        final PrivateMethodTester tester = new PrivateMethodTester(pq);
+        PriorityQueue<String> pq = new PriorityQueue<>(3, 0, true, Comparator.comparing(String::toString), true, 2);
+        setFields(pq, binHeap, 2);
+        PrivateMethodTester tester = new PrivateMethodTester(pq);
         assertEquals(a, tester.invokePrivate("peek", 0));
         tester.invokePrivate("swimUp", 1);
         assertEquals(b, tester.invokePrivate("peek", 0));
@@ -55,9 +70,9 @@ public class PriorityQueueTest {
         String b = "B";
         binHeap[1] = a;
         binHeap[2] = b;
-        // Create PQ which does not use the 0th index.
-        Iterable<String> pq = new PriorityQueue<>(true, binHeap, 1, 2, Comparator.comparing(String::toString), false);
-        final PrivateMethodTester tester = new PrivateMethodTester(pq);
+        PriorityQueue<String> pq = new PriorityQueue<>(2, 1, true, Comparator.comparing(String::toString), false, 2);
+        setFields(pq, binHeap, 2);
+        PrivateMethodTester tester = new PrivateMethodTester(pq);
         assertEquals(a, tester.invokePrivate("peek", 1));
         tester.invokePrivate("swimUp", 2);
         assertEquals(b, tester.invokePrivate("peek", 1));
@@ -70,11 +85,11 @@ public class PriorityQueueTest {
         binHeap[2] = "A";
         binHeap[3] = "B";
         binHeap[4] = "C";
-        // Create PQ as a max-heap.
-        Iterable<String> pq = new PriorityQueue<>(true, binHeap, 1, 4, Comparator.comparing(String::toString), false);
-        final PrivateMethodTester tester = new PrivateMethodTester(pq);
-        tester.invokePrivate("swimUp", 4); // Swim "C" upward.
-        assertEquals("C", tester.invokePrivate("peek", 2)); // Peek at root.
+        PriorityQueue<String> pq = new PriorityQueue<>(4, 1, true, Comparator.comparing(String::toString), false, 2);
+        setFields(pq, binHeap, 4);
+        PrivateMethodTester tester = new PrivateMethodTester(pq);
+        tester.invokePrivate("swimUp", 4);
+        assertEquals("C", tester.invokePrivate("peek", 2));
     }
 
     @Test
@@ -84,11 +99,11 @@ public class PriorityQueueTest {
         binHeap[2] = "C";
         binHeap[3] = "E";
         binHeap[4] = "B";
-        // Create PQ as a min-heap.
-        Iterable<String> pq = new PriorityQueue<>(false, binHeap, 1, 4, Comparator.comparing(String::toString), false);
-        final PrivateMethodTester tester = new PrivateMethodTester(pq);
-        tester.invokePrivate("swimUp", 4); // Swim "B" upward.
-        assertEquals("B", tester.invokePrivate("peek", 1)); // Peek at root.
+        PriorityQueue<String> pq = new PriorityQueue<>(4, 1, false, Comparator.comparing(String::toString), false, 2);
+        setFields(pq, binHeap, 4);
+        PrivateMethodTester tester = new PrivateMethodTester(pq);
+        tester.invokePrivate("swimUp", 4);
+        assertEquals("B", tester.invokePrivate("peek", 1));
     }
 
     @Test
@@ -100,8 +115,9 @@ public class PriorityQueueTest {
         binHeap[0] = a;
         binHeap[1] = b;
         binHeap[2] = c;
-        Iterable<String> pq = new PriorityQueue<>(true, binHeap, 0, 3, Comparator.comparing(String::toString), false);
-        final PrivateMethodTester tester = new PrivateMethodTester(pq);
+        PriorityQueue<String> pq = new PriorityQueue<>(4, 0, true, Comparator.comparing(String::toString), false, 2);
+        setFields(pq, binHeap, 3);
+        PrivateMethodTester tester = new PrivateMethodTester(pq);
         tester.invokePrivate("sink", 0);
         assertEquals(c, tester.invokePrivate("peek", 0));
         assertEquals(a, tester.invokePrivate("peek", 2));
@@ -116,8 +132,9 @@ public class PriorityQueueTest {
         binHeap[1] = a;
         binHeap[2] = b;
         binHeap[3] = c;
-        Iterable<String> pq = new PriorityQueue<>(true, binHeap, 1, 3, Comparator.comparing(String::toString), false);
-        final PrivateMethodTester tester = new PrivateMethodTester(pq);
+        PriorityQueue<String> pq = new PriorityQueue<>(3, 1, true, Comparator.comparing(String::toString), false, 2);
+        setFields(pq, binHeap, 3);
+        PrivateMethodTester tester = new PrivateMethodTester(pq);
         tester.invokePrivate("sink", 1);
         assertEquals(c, tester.invokePrivate("peek", 1));
         assertEquals(a, tester.invokePrivate("peek", 3));
@@ -125,21 +142,20 @@ public class PriorityQueueTest {
 
     @Test
     public void testGive1() {
-        PriorityQueue<String> pq = new PriorityQueue<>(10, Comparator.comparing(String::toString));
+        PriorityQueue<String> pq = new PriorityQueue<>(10, 1, true, Comparator.comparing(String::toString), false, 2);
         String key = "A";
         pq.give(key);
         assertEquals(1, pq.size());
-        final PrivateMethodTester tester = new PrivateMethodTester(pq);
+        PrivateMethodTester tester = new PrivateMethodTester(pq);
         assertEquals(key, tester.invokePrivate("peek", 1));
     }
 
     @Test
     public void testGive2() {
-        // Test that we can comfortably give more elements than the the PQ has capacity for
-        PriorityQueue<String> pq = new PriorityQueue<>(1, Comparator.comparing(String::toString));
-        final PrivateMethodTester tester = new PrivateMethodTester(pq);
+        PriorityQueue<String> pq = new PriorityQueue<>(1, 1, true, Comparator.comparing(String::toString), false, 2);
+        PrivateMethodTester tester = new PrivateMethodTester(pq);
         String key = "A";
-        pq.give(null); // This will never survive so it might as well be null
+        pq.give(null);
         assertEquals(1, pq.size());
         assertNull(tester.invokePrivate("peek", 1));
         pq.give(key);
@@ -149,7 +165,7 @@ public class PriorityQueueTest {
 
     @Test
     public void testTake1() throws PQException {
-        PriorityQueue<String> pq = new PriorityQueue<>(10, Comparator.comparing(String::toString));
+        PriorityQueue<String> pq = new PriorityQueue<>(10, 1, true, Comparator.comparing(String::toString), false, 2);
         String key = "A";
         pq.give(key);
         assertEquals(key, pq.take());
@@ -158,23 +174,22 @@ public class PriorityQueueTest {
 
     @Test
     public void testTake2() throws PQException {
-        PriorityQueue<String> pq = new PriorityQueue<>(10, Comparator.comparing(String::toString));
+        PriorityQueue<String> pq = new PriorityQueue<>(10, 1, true, Comparator.comparing(String::toString), false, 2);
         String a = "A";
         String b = "B";
         pq.give(a);
         pq.give(b);
-        final PrivateMethodTester tester = new PrivateMethodTester(pq);
+        PrivateMethodTester tester = new PrivateMethodTester(pq);
         assertEquals(a, tester.invokePrivate("peek", 2));
         assertEquals(b, tester.invokePrivate("peek", 1));
         assertEquals(b, pq.take());
         assertEquals(a, pq.take());
         assertTrue(pq.isEmpty());
-
     }
 
     @Test(expected = PQException.class)
     public void testTake3() throws PQException {
-        PriorityQueue<String> pq = new PriorityQueue<>(10, Comparator.comparing(String::toString));
+        PriorityQueue<String> pq = new PriorityQueue<>(10, 1, true, Comparator.comparing(String::toString), false, 2);
         pq.give("A");
         pq.take();
         pq.take();
@@ -182,13 +197,13 @@ public class PriorityQueueTest {
 
     @Test
     public void isEmpty() {
-        PriorityQueue<String> pq = new PriorityQueue<>(10, false, Comparator.comparing(String::toString));
+        PriorityQueue<String> pq = new PriorityQueue<>(10, 1, false, Comparator.comparing(String::toString), false, 2);
         assertTrue(pq.isEmpty());
     }
 
     @Test
     public void size() throws PQException {
-        PriorityQueue<String> pq = new PriorityQueue<>(10, false, Comparator.comparing(String::toString));
+        PriorityQueue<String> pq = new PriorityQueue<>(10, 1, false, Comparator.comparing(String::toString), false, 2);
         assertEquals(0, pq.size());
         pq.give("A");
         assertEquals(1, pq.size());
@@ -202,9 +217,10 @@ public class PriorityQueueTest {
         binHeap[0] = "A";
         binHeap[1] = "B";
         binHeap[2] = "C";
-        PriorityQueue<String> pq = new PriorityQueue<>(false, binHeap, 0, 3, Comparator.comparing(String::toString), false);
+        PriorityQueue<String> pq = new PriorityQueue<>(3, 0, false, Comparator.comparing(String::toString), false, 2);
+        setFields(pq, binHeap, 3);
         pq.doTake(pq::snake);
-        final PrivateMethodTester tester = new PrivateMethodTester(pq);
+        PrivateMethodTester tester = new PrivateMethodTester(pq);
         assertEquals("B", tester.invokePrivate("peek", 0));
     }
 
@@ -214,9 +230,10 @@ public class PriorityQueueTest {
         binHeap[0] = "C";
         binHeap[1] = "A";
         binHeap[2] = "B";
-        PriorityQueue<String> pq = new PriorityQueue<>(true, binHeap, 0, 3, Comparator.comparing(String::toString), false);
+        PriorityQueue<String> pq = new PriorityQueue<>(3, 0, true, Comparator.comparing(String::toString), false, 2);
+        setFields(pq, binHeap, 3);
         pq.doTake(pq::sink);
-        final PrivateMethodTester tester = new PrivateMethodTester(pq);
+        PrivateMethodTester tester = new PrivateMethodTester(pq);
         assertEquals("B", tester.invokePrivate("peek", 0));
     }
 
@@ -226,9 +243,10 @@ public class PriorityQueueTest {
         binHeap[1] = "A";
         binHeap[2] = "B";
         binHeap[3] = "C";
-        PriorityQueue<String> pq = new PriorityQueue<>(false, binHeap, 1, 3, Comparator.comparing(String::toString), false);
+        PriorityQueue<String> pq = new PriorityQueue<>(3, 1, false, Comparator.comparing(String::toString), false, 2);
+        setFields(pq, binHeap, 3);
         pq.doTake(pq::snake);
-        final PrivateMethodTester tester = new PrivateMethodTester(pq);
+        PrivateMethodTester tester = new PrivateMethodTester(pq);
         assertEquals("B", tester.invokePrivate("peek", 1));
     }
 
@@ -238,9 +256,10 @@ public class PriorityQueueTest {
         binHeap[1] = "C";
         binHeap[2] = "A";
         binHeap[3] = "B";
-        PriorityQueue<String> pq = new PriorityQueue<>(true, binHeap, 1, 3, Comparator.comparing(String::toString), false);
+        PriorityQueue<String> pq = new PriorityQueue<>(3, 1, true, Comparator.comparing(String::toString), false, 2);
+        setFields(pq, binHeap, 3);
         pq.doTake(pq::sink);
-        final PrivateMethodTester tester = new PrivateMethodTester(pq);
+        PrivateMethodTester tester = new PrivateMethodTester(pq);
         assertEquals("B", tester.invokePrivate("peek", 1));
     }
 
@@ -250,7 +269,8 @@ public class PriorityQueueTest {
         binHeap[0] = "C";
         binHeap[1] = "B";
         binHeap[2] = "D";
-        PriorityQueue<String> pq = new PriorityQueue<>(true, binHeap, 0, 3, Comparator.comparing(String::toString), false);
+        PriorityQueue<String> pq = new PriorityQueue<>(3, 0, true, Comparator.comparing(String::toString), false, 2);
+        setFields(pq, binHeap, 3);
         assertEquals(3, pq.size());
         Iterator<String> iterator = pq.iterator();
         assertTrue(iterator.hasNext());
@@ -269,7 +289,8 @@ public class PriorityQueueTest {
         binHeap[1] = "C";
         binHeap[2] = "B";
         binHeap[3] = "D";
-        PriorityQueue<String> pq = new PriorityQueue<>(true, binHeap, 1, 3, Comparator.comparing(String::toString), false);
+        PriorityQueue<String> pq = new PriorityQueue<>(3, 1, true, Comparator.comparing(String::toString), false, 2);
+        setFields(pq, binHeap, 3);
         assertEquals(3, pq.size());
         Iterator<String> iterator = pq.iterator();
         assertTrue(iterator.hasNext());
@@ -284,8 +305,8 @@ public class PriorityQueueTest {
 
     @Test
     public void testGetMax() {
-        Iterable<String> pq = new PriorityQueue<>(10, false, Comparator.comparing(String::toString));
-        final PrivateMethodTester tester = new PrivateMethodTester(pq);
+        PriorityQueue<String> pq = new PriorityQueue<>(10, 1, false, Comparator.comparing(String::toString), false, 2);
+        PrivateMethodTester tester = new PrivateMethodTester(pq);
         assertEquals(false, tester.invokePrivate("getMax"));
     }
 }
