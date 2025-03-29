@@ -1,0 +1,12 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "SortBenchmark",
+            "request": "launch",
+            "mainClass": "com.phasmidsoftware.dsaipg.util.SortBenchmark",
+            "projectName": "INFO6205",
+            "args": "256000"
+        }
+    ]
+}
